@@ -1,0 +1,37 @@
+<script type="text/javascript">
+isMobile = false;
+function setMobile(){
+	isMobile = true;
+}
+function Photo(d){
+	this.src = d.src;
+	this.desc = d.desc;
+	this.time = d.time;
+}
+Photo.prototype.toString = function(){
+	return '<div>'+'<img style="width:100%; max-width: 100%;" src="'+this.src+'"/>'+'<div>'+'<span style="display: inline-block;width:20%;background-color: #ff0000;">'+this.time+'</span>'+'<span style="display: inline-block;width:80%;background-color: #00ff00;">'+this.desc+'</span>'+'</div></div>';
+}
+function load(index){
+	var p = new Photo(parent.data[index]);
+	document.write(p.toString());
+}
+window.onload=function(){
+	var width = 0;
+	var height = 0;
+	if(isMobile){
+	}else{
+		width = 600;
+		height = 500;
+	}
+	parent.window.document.getElementById('wrapper').style.width="100%";
+	parent.window.document.getElementById('wrapper').style.height="100%";
+	for(i in parent.data){
+		load(i);
+	}
+}
+</script>
+
+
+
+
+

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TraceRecoder</string>
+    <!-- Address format -->
+    <string name="address_output_string">%1$s %2$s %3$s</string>
+    <!-- Latitude, longitude format -->
+    <string name="latitude_longitude">%1$.7f, %2$.7f</string>
+    <!-- Messages -->
+    <string name="descriptionHint">description: </string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="gpsStatus">GPS状态</string>
+    <string name="gpsStart">开始搜索GPS</string>
+    <string name="gpsFixed">已连接</string>
+    <string name="Camera">camera</string>
+    <string name="Lat">经度</string>
+    <string name="Lng">纬度</string>
+    <string name="Start">开始记录</string>
+    <string name="Save">保存记录</string>
+    <string name="camera_title">相机</string>
+    <string name="list_file_title">历史记录 </string>
+    <string name="map_title">轨迹</string>
+    <string name="new_record_title">控制中心</string>
+    <string name="no_data">空记录</string>
+
+</resources>

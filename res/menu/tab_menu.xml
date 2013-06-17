@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group android:id="@+id/tab_group" >
+        <item
+            android:id="@+id/tab_new"
+            android:icon="@drawable/left"
+            android:showAsAction="always"
+            android:title="recent"/>
+        <item
+            android:id="@+id/tab_old"
+            android:icon="@drawable/right"
+            android:showAsAction="always"
+            android:title="contacts"/>
+    </group>
+
+    <item
+        android:id="@+id/tab_menu_exit"
+        android:icon="@drawable/ic_tab_settings"
+        android:showAsAction="never"
+        android:title="exit"/>
+
+</menu>
