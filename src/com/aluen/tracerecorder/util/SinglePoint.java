@@ -1,24 +1,16 @@
 package com.aluen.tracerecorder.util;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.aluen.tracerecoder.R;
+
+import android.content.Context;
+
 public class SinglePoint extends AbsPlacemark {
-	// kml template
-	private static String xmlStr = "<Placemark>\n"
-			+ "<visibility>1</visibility>\n"
-			+ "<Point>\n"
-			+ "<coordinates>\n$coord</coordinates>\n"
-			+ "</Point>\n"
-			+ "<description>\n<![CDATA[\n"
-			+ "<script>\ndata = $data;\n"
-			+ "</script>\n"
-			+ "<table id = \"wrapper\"><tr><td><iframe name=\"gallery\" frameborder=\"no\" "
-			+ "border=\"0\" width=\"100%\" height=\"100%\" src=\"gallery.html\">"
-			+ "</iframe></td></tr></table>\n" + "]]>\n</description>\n"
-			+ "</Placemark>\n";
 	// the location of this gallery
 	private GeoPoint point;
 	// for read
@@ -28,13 +20,21 @@ public class SinglePoint extends AbsPlacemark {
 	private ArrayList<String> descriptions;
 	private ArrayList<String> times;
 
+	private WeakReference<Context> context;
+
+
 	/**
 	 * for write a new gallery
+	 * 
+	 * @param context
+	 *            app context
 	 */
-	public SinglePoint() {
+	public SinglePoint(Context context) {
 		setImages(new ArrayList<String>());
 		setDescriptions(new ArrayList<String>());
 		setTimes(new ArrayList<String>());
+
+		this.context = new WeakReference<Context>(context);
 	}
 
 	/**
@@ -42,9 +42,13 @@ public class SinglePoint extends AbsPlacemark {
 	 * 
 	 * @param xml
 	 *            kml data
+	 * @param context
+	 *            application context
 	 */
-	public SinglePoint(Node xml) {
+	public SinglePoint(Node xml, Context context) {
 		// TODO Auto-generated constructor stub
+		this.context = new WeakReference<Context>(context);
+
 		parse(xml);
 	}
 
@@ -104,11 +108,10 @@ public class SinglePoint extends AbsPlacemark {
 				Double.parseDouble(rawPoint[1]),
 				Double.parseDouble(rawPoint[0]));
 		this.setPoint(gp);
-		// parse html in the description 
+		// parse html in the description
 		this.setHtml(element.getElementsByTagName("description").item(0)
 				.getTextContent().trim());
 	}
-
 
 	public void setDescriptions(ArrayList<String> descriptions) {
 		this.descriptions = descriptions;
@@ -133,18 +136,15 @@ public class SinglePoint extends AbsPlacemark {
 	@Override
 	public String toXML() {
 		// TODO Auto-generated method stub
-		String result = xmlStr.replace("$coord", getPoint().toString());
-		String json = "[{\"src\":\"" + getImages().get(0) + "\",\"desc\":\""
-				+ getDescriptions().get(0) + "\",\"time\":\""
-				+ getTimes().get(0) + "\"}";
-		for (int i = 1; i < getImages().size(); ++i) {
-			json += ",{\"src\":\"" + getImages().get(i) + "\",\"desc\":\""
-					+ getDescriptions().get(i) + "\",\"time\":\""
-					+ getTimes().get(i) + "\"}";
+		String json = "[";
+		for (int i = 0; i < getImages().size(); ++i) {
+			json += Utility.getFormatedString(this.context.get(),
+					R.string.singlePointJson, getImages().get(i),
+					getDescriptions().get(i), getTimes().get(i))+",";
 		}
 		json += "]";
-		result = result.replace("$data", json);
-		return result;
+		return Utility.getFormatedString(this.context.get(),
+				R.string.singlePointXML, getPoint().toString(), json);
 	}
 
 }

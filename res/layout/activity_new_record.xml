@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -16,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="5dp"
+            android:contentDescription="@string/no_data"
             android:src="@drawable/gps_fail" />
 
         <TextView
@@ -25,11 +27,10 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="5dp"
             android:gravity="center"
-            android:text="@string/gpsStatus"
+            android:text="@string/gpsFail"
             android:textIsSelectable="true" />
     </RelativeLayout>
-
-    <LinearLayout
+    <LinearLayout
         android:id="@+id/llControl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -41,7 +42,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            tools:ignore="NestedWeights" >
 
             <LinearLayout
                 android:id="@+id/llLatLng"
@@ -55,7 +57,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/Lat"
+                    android:text="@string/initialText"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView
@@ -63,18 +65,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/Lng"
+                    android:text=""
                     android:textAppearance="?android:attr/textAppearanceLarge" />
             </LinearLayout>
 
-            <Button
+            <ImageButton
                 android:id="@+id/bCamera"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:text="@string/Camera" />
+                android:contentDescription="@string/no_data"
+                android:src="@drawable/camera_big" />
         </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
         <LinearLayout
             android:id="@+id/llBtns"
@@ -90,6 +98,11 @@
                 android:layout_weight="4"
                 android:background="@android:color/transparent"
                 android:text="@string/Start" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <Button
                 android:id="@+id/bSave"

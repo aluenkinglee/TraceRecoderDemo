@@ -35,7 +35,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault.Light"
+        android:theme="@style/Theme.grey"
         android:uiOptions="splitActionBarWhenNarrow" >
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
@@ -51,19 +51,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!--
-        <activity
-            android:name="com.meizu.smartbar.tab.ActionItemTab"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
-        -->
-
-        <activity
-            android:name="com.aluen.tracerecorder.ListFileActivity"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustPan" />
+        <activity android:name="com.aluen.tracerecorder.ListFileActivity" />
         <activity android:name="com.aluen.tracerecorder.MainActivity" />
         <activity android:name="com.aluen.tracerecorder.MapActivity" />
         <activity android:name="com.aluen.tracerecorder.NewRecordActivity" />

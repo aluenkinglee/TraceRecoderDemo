@@ -1,37 +1,96 @@
 <script type="text/javascript">
-isMobile = false;
-function setMobile(){
-	isMobile = true;
-}
-function Photo(d){
-	this.src = d.src;
-	this.desc = d.desc;
-	this.time = d.time;
-}
-Photo.prototype.toString = function(){
-	return '<div>'+'<img style="width:100%; max-width: 100%;" src="'+this.src+'"/>'+'<div>'+'<span style="display: inline-block;width:20%;background-color: #ff0000;">'+this.time+'</span>'+'<span style="display: inline-block;width:80%;background-color: #00ff00;">'+this.desc+'</span>'+'</div></div>';
-}
-function load(index){
-	var p = new Photo(parent.data[index]);
-	document.write(p.toString());
-}
-window.onload=function(){
-	var width = 0;
-	var height = 0;
-	if(isMobile){
-	}else{
-		width = 600;
-		height = 500;
+	window.index = 0;
+	window.isMobile = false;
+	gallery = '<div style="text-align: center;">'
+			+ '<img id="image" style="max-width: 100%; height: 80%; max-height: 80%;"'
+			+ 'onclick="jsCall.changePic(event,this);" />'
+			+ '</div>'
+			+ '<div id="hint" style="width: 100%; position: relative; top: -1.5em; text-align: center;">/</div>'
+			+ '<div style="max-height: 15%;">'
+			+ '<span style="display: inline-block; width: 20%; text-align: center;" id="time"></span>'
+			+ ' <span style="display: inline-block; width: 80%; text-align: center;" id="desc"></span>'
+			+ '</div>';
+	function setMobile() {
+		window.isMobile = true;
 	}
-	parent.window.document.getElementById('wrapper').style.width="100%";
-	parent.window.document.getElementById('wrapper').style.height="100%";
-	for(i in parent.data){
-		load(i);
+
+	function changePic(event, img) {
+		var mid = _getMiddle(img);
+		if (event.clientX < mid) {
+			window.index = (window.index - 1 + length) % length;
+			_setPic("image", "time", "desc", "hint");
+		} else {
+			window.index = (window.index + 1) % length;
+			_setPic("image", "time", "desc", "hint");
+		}
 	}
-}
+	function Photo(d) {
+		this.src = d.src;
+		this.desc = d.desc;
+		this.time = d.time;
+	}
+	Photo.prototype.inflate = function(imgEle, timeEle, descEle) {
+		imgEle.src = this.src;
+		timeEle.innerHTML = this.time;
+		descEle.innerHTML = this.desc;
+	}
+	function _getMiddle(ele) {
+		var mid = ele.offsetLeft + ele.offsetWidth / 2;
+		while (ele.offsetParent != null) {
+			ele = ele.offsetParent;
+			mid += ele.offsetLeft;
+		}
+		return mid;
+	}
+	function _setPic(image, time, desc, hint) {
+		var imgEle = window.parent.window.document.getElementById(image);
+		var timeEle = window.parent.window.document.getElementById(time);
+		var descEle = window.parent.window.document.getElementById(desc);
+
+		var p = new Photo(window.parent.data[window.index]);
+		p.inflate(imgEle, timeEle, descEle);
+
+		var hintEle = window.parent.window.document.getElementById(hint);
+		hintEle.innerHTML = (window.index + 1) + " / " + length;
+	}
+	function _load() {
+		window.isMobile = window.parent.window.isMobile;
+		alert("parent" + window.parent.window.isMobile);
+		alert(window.isMobile);
+		window.length = parent.data.length;
+		var wrapper = window.parent.window.document.getElementById("wrapper");
+		wrapper.innerHTML = window.gallery;
+
+		_setPic("image", "time", "desc", "hint");
+	}
+	function _cleanOut() {
+		var ps = window.parent.window.document.getElementsByTagName("p");
+		for (i = 0; i < ps.length; ++i) {
+			ps[i].parentNode.removeChild(ps[i]);
+		}
+	}
+	function _setSize() {
+		if (isMobile) {
+			window.parent.window.document.getElementsByTagName("body")[0].style.width = "100%";
+			window.parent.window.document.getElementsByTagName("body")[0].style.height = "100%";
+			alert("in isMobile"
+					+ window.parent.window.document
+							.getElementsByTagName("body").offsetWidth);
+		} else {
+			var screenHeight = window.parent.window.document
+					.getElementsByTagName("body")[0].clientHeight * 0.8;
+			var screenWidth = window.parent.window.document
+					.getElementsByTagName("body")[0].clientWidth * 0.8;
+			alert(window.parent.window.innerWidth);
+			window.parent.window.document.getElementsByTagName("body")[0].style.width = screenWidth
+					+ "px";
+			window.parent.window.document.getElementsByTagName("body")[0].style.height = screenHeight
+					+ "px";
+		}
+	}
+	window.onload = function() {
+		_cleanOut();
+		_load();
+		_setSize();
+	}
 </script>
-
-
-
-
-

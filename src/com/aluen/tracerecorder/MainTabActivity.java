@@ -40,6 +40,28 @@ public class MainTabActivity extends TabActivity {
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getGroupId() == R.id.tab_group) {
+			switch (item.getItemId()) {
+			case R.id.tab_new:
+				getTabHost().setCurrentTab(TAB_INDEX_NEW);
+				break;
+			case R.id.tab_old:
+				getTabHost().setCurrentTab(TAB_INDEX_OLD);
+				break;
+			case R.id.tab_menu_exit:
+				Utility.sendCommand(MainTabActivity.this, Utility.Exit);
+				this.finish();
+				break;
+			default:
+				break;
+			}
+			invalidateOptionsMenu();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		for (int i = 0; i < menu.size(); i++) {
 			refreshTabIcon(menu.getItem(i), getTabHost().getCurrentTab());
@@ -51,39 +73,17 @@ public class MainTabActivity extends TabActivity {
 		if (item.getGroupId() == R.id.tab_group) {
 			switch (item.getItemId()) {
 			case R.id.tab_new:
-				item.setIcon(currentTab == TAB_INDEX_NEW ? R.drawable.ic_tab_selected_recent
-						: R.drawable.ic_tab_unselected_recent);
+				item.setIcon(currentTab == TAB_INDEX_NEW ? R.drawable.new_record_selected
+						: R.drawable.new_record_unselected);
 				break;
 			case R.id.tab_old:
-				item.setIcon(currentTab == TAB_INDEX_OLD ? R.drawable.ic_tab_selected_contacts
-						: R.drawable.ic_tab_unselected_contacts);
+				item.setIcon(currentTab == TAB_INDEX_OLD ? R.drawable.list_selected
+						: R.drawable.list_unselected);
 				break;
 			default:
 				break;
 			}
 		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getGroupId() == R.id.tab_group) {
-			switch (item.getItemId()) {
-			case R.id.tab_new:
-				getTabHost().setCurrentTab(TAB_INDEX_NEW);
-				break;
-			case R.id.tab_old:
-				getTabHost().setCurrentTab(TAB_INDEX_OLD);
-				break;
-			case R.id.tab_menu_exit:
-				Utility.sendCommand(MainTabActivity.this,
-						Utility.Exit);
-				break;
-			default:
-				break;
-			}
-			invalidateOptionsMenu();
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 }

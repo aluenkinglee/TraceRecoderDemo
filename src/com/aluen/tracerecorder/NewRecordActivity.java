@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,13 +25,13 @@ public class NewRecordActivity extends FragmentActivity {
 	private TextView tvGpsStatus;
 	private ImageView ivGps;
 	private Button bStart;
-	private Button bCamera;
+	private ImageButton ibCamera;
 	private Button bSave;
 
 	// Handle to SharedPreferences for this app
 	private SharedPreferences mPrefs;
 
-	OnClickListener clickListener = new OnClickListener() {
+	private OnClickListener clickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
@@ -41,16 +44,19 @@ public class NewRecordActivity extends FragmentActivity {
 				Intent i = new Intent(NewRecordActivity.this,
 						RecordingService.class);
 				startService(i);
+				bStart.setEnabled(false);
+				bSave.setEnabled(true);
 				break;
 			case R.id.bSave:
 				Utility.sendCommand(NewRecordActivity.this, Utility.Save);
+				resetViews();
 				break;
 			default:
 				break;
 			}
 		}
 	};
-	OnSharedPreferenceChangeListener preferenceListener = new OnSharedPreferenceChangeListener() {
+	private OnSharedPreferenceChangeListener preferenceListener = new OnSharedPreferenceChangeListener() {
 
 		@Override
 		public void onSharedPreferenceChanged(
@@ -85,13 +91,18 @@ public class NewRecordActivity extends FragmentActivity {
 		tvLng = (TextView) findViewById(R.id.tvLng);
 		ivGps = (ImageView) findViewById(R.id.ivGps);
 		bStart = (Button) findViewById(R.id.bStart);
-		bCamera = (Button) findViewById(R.id.bCamera);
+		ibCamera = (ImageButton) findViewById(R.id.bCamera);
 		bSave = (Button) findViewById(R.id.bSave);
 
 		bStart.setOnClickListener(clickListener);
-		bCamera.setOnClickListener(clickListener);
+		ibCamera.setOnClickListener(clickListener);
 		bSave.setOnClickListener(clickListener);
+		
+		bSave.setEnabled(false);
 
+		Animation anim = AnimationUtils.loadAnimation(getApplicationContext(),
+				R.anim.alpha);
+		ibCamera.startAnimation(anim);
 		// Open Shared Preferences
 		mPrefs = getSharedPreferences(Utility.SHARED_PREFERENCES,
 				Context.MODE_PRIVATE);
@@ -102,5 +113,17 @@ public class NewRecordActivity extends FragmentActivity {
 	protected void onResume() {
 		getParent().getActionBar().setTitle(R.string.new_record_title);
 		super.onResume();
+	}
+
+	/**
+	 * reset the texts and images on the views
+	 */
+	private void resetViews() {
+		tvLat.setText(R.string.initialText);
+		tvLng.setText("");
+		tvGpsStatus.setText(R.string.gpsFail);
+		ivGps.setImageResource(R.drawable.gps_fail);
+		bSave.setEnabled(false);
+		bStart.setEnabled(true);
 	}
 }

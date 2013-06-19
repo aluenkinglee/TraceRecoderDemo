@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.aluen.tracerecoder.R;
@@ -37,20 +37,18 @@ import com.aluen.tracerecorder.util.Utility;
  * 
  */
 public class RecordingService extends Service {
-	// to be changed
-
 	// record related
 	private Record record = null;
 	private GeoPoint lastLocation;
 	private long lastTime = 0;
 	private LocationManager locationManager;
 	// location request settings
-	private long minTime = 60 * Utility.MILLISECONDS_PER_SECOND;
+	private long minTime = 1 * Utility.MILLISECONDS_PER_SECOND;
 	private float minDis = 100;
 
 	// float window
 	private WindowManager windowManager;
-	private TextView tvFloat = null;
+	private ImageView ivFloat = null;
 	private float touchStartX;
 	private float touchStartY;
 	private float x;
@@ -131,7 +129,8 @@ public class RecordingService extends Service {
 		@Override
 		public void onProviderDisabled(String provider) {
 			// TODO Auto-generated method stub
-			updateStatus("fail", R.drawable.gps_fail);
+			updateStatus(getApplicationContext().getString(R.string.gpsFail),
+					R.drawable.gps_fail);
 		}
 
 		@Override
@@ -169,9 +168,8 @@ public class RecordingService extends Service {
 						++inUse;
 					}
 				}
-				updateStatus(
-						RecordingService.this.getString(R.string.gpsStatus)
-								+ inUse + "/" + total, R.drawable.gps_fixed);
+				updateStatus(Utility.getFormatedString(getApplicationContext(),
+						R.string.gpsStatus, inUse, total), R.drawable.gps_fixed);
 				break;
 			case GpsStatus.GPS_EVENT_STARTED:
 				updateStatus(
@@ -206,12 +204,12 @@ public class RecordingService extends Service {
 		layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
 		layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 		// view
-		tvFloat = new TextView(this);
-		tvFloat.setOnTouchListener(touchListener);
-		tvFloat.setOnLongClickListener(longClickListener);
-		tvFloat.setText("点我");
+		ivFloat = new ImageView(this);
+		ivFloat.setOnTouchListener(touchListener);
+		ivFloat.setOnLongClickListener(longClickListener);
+		ivFloat.setImageResource(R.drawable.camera_small);
 		// show
-		windowManager.addView(tvFloat, layoutParams);
+		windowManager.addView(ivFloat, layoutParams);
 	}
 
 	/**
@@ -222,7 +220,7 @@ public class RecordingService extends Service {
 	 */
 	private void execute(Intent i) {
 		// TODO Auto-generated method stub
-		int c = i.getExtras().getInt("command");
+		int c = i.getExtras().getInt(Utility.CommandTag);
 		switch (c) {
 		case Utility.Start:
 			startRecord();
@@ -236,9 +234,9 @@ public class RecordingService extends Service {
 			break;
 		case Utility.AddPhoto:
 			// data is written to intent in CameraActivity
-			String fileName = i.getStringExtra("fileName");
-			String desc = i.getStringExtra("desc");
-			String now = i.getStringExtra("now");
+			String fileName = i.getStringExtra(Utility.FileNameExtra);
+			String desc = i.getStringExtra(Utility.DescExtra);
+			String now = i.getStringExtra(Utility.TimeExtra);
 			record.addPhoto(lastLocation, fileName, desc, now);
 			break;
 		case Utility.Exit:
@@ -252,10 +250,10 @@ public class RecordingService extends Service {
 	 * stop current service
 	 */
 	private void exit() {
-		if (tvFloat != null) {
+		if (ivFloat != null) {
 			// clear float window
-			windowManager.removeView(tvFloat);
-			tvFloat = null;
+			windowManager.removeView(ivFloat);
+			ivFloat = null;
 			// stop receiving commands
 			unregisterReceiver(br);
 			// stop requesting gps updates
@@ -301,7 +299,7 @@ public class RecordingService extends Service {
 	private void prepareFile() {
 		String dirName = record.getDirName();
 		// save the dirName in sharedPreference
-		mEditor.putString(Record.CurrentDir, dirName);
+		mEditor.putString(Utility.CurrentDir, dirName);
 		mEditor.commit();
 		// mkdir
 		File dir = new File(dirName);
@@ -353,7 +351,7 @@ public class RecordingService extends Service {
 	 */
 	private void startRecord() {
 		if (record == null) {
-			record = new Record(getAssets());
+			record = new Record(getApplicationContext(), getAssets());
 			lastLocation = new GeoPoint(0, 0, 0);
 			prepareGPS();
 			prepareFile();
@@ -373,10 +371,12 @@ public class RecordingService extends Service {
 	 * update lat and lng to NewRecordActivity by setting sharedPreference
 	 */
 	private void updateLocation() {
-		mEditor.putString(Utility.GpsLat,
-				"Latitude:" + lastLocation.getLatitude());
-		mEditor.putString(Utility.GpsLng,
-				"Longitude:" + lastLocation.getLongitude());
+		mEditor.putString(Utility.GpsLat, Utility.getFormatedString(
+				getApplicationContext(), R.string.Lat,
+				lastLocation.getLatitude()));
+		mEditor.putString(Utility.GpsLng, Utility.getFormatedString(
+				getApplicationContext(), R.string.Lng,
+				lastLocation.getLongitude()));
 		mEditor.commit();
 	}
 
@@ -402,6 +402,6 @@ public class RecordingService extends Service {
 		layoutParams.x = (int) (x - touchStartX);
 		layoutParams.y = (int) (y - touchStartY);
 
-		windowManager.updateViewLayout(tvFloat, layoutParams);
+		windowManager.updateViewLayout(ivFloat, layoutParams);
 	}
 }

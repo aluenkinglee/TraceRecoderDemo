@@ -73,7 +73,6 @@ public class MapActivity extends FragmentActivity implements
 	private void popupWindow(String html) {
 		String data = "<script>window.isMobile = true;</script>" + html;
 		String baseUrl = "file://" + dirName + "/gallery.html";
-		System.out.println("in popupWindow baseUrl: " + baseUrl);
 		webView.loadDataWithBaseURL(baseUrl, data, "text/html", "UTF-8",
 				"file://" + dirName + "/");
 
@@ -95,7 +94,6 @@ public class MapActivity extends FragmentActivity implements
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				// TODO Auto-generated method stub
-				System.out.println(message);
 				return super.onJsAlert(view, url, message, result);
 			}
 
@@ -156,7 +154,8 @@ public class MapActivity extends FragmentActivity implements
 		// Here will be changed in the future, sharedPreference will be ok.
 		PolylineOptions poLinePath = new PolylineOptions().width(5)
 				.color(Color.BLUE).geodesic(true);
-		Record record = new Record(dirName, getAssets());
+		Record record = new Record(dirName, getApplicationContext(),
+				getAssets());
 		ArrayList<SinglePoint> path = record.getList();
 
 		for (int i = 0; i < path.size(); i++) {
@@ -168,6 +167,10 @@ public class MapActivity extends FragmentActivity implements
 
 		LinePath lp = record.getPath();
 		ArrayList<GeoPoint> points = lp.getPoints();
+//		ArrayList<GeoPoint> points = new ArrayList<GeoPoint>();
+//		if (lp!=null){
+//			points = lp.getPoints();
+//		}
 		if (0 != points.size()) {
 			for (int j = 0; j < points.size(); ++j) {
 				poLinePath.add(points.get(j).getTransformedLatLng());

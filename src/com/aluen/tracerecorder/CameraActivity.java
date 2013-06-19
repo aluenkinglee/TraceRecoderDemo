@@ -1,8 +1,6 @@
 package com.aluen.tracerecorder;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -11,14 +9,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.aluen.tracerecoder.R;
-import com.aluen.tracerecorder.util.Record;
 import com.aluen.tracerecorder.util.Utility;
 
 /**
@@ -31,10 +28,13 @@ public class CameraActivity extends Activity {
 	// ui
 	private Button bOk;
 	private Button bCancel;
-	private Bitmap bitmap = null;
 	private EditText etDesc;
 	// Handle to SharedPreferences for this app
 	private SharedPreferences mPrefs;
+
+	private String fileName;
+	private String desc;
+	private String now;
 
 	private View.OnClickListener listener = new View.OnClickListener() {
 
@@ -43,7 +43,8 @@ public class CameraActivity extends Activity {
 			// TODO Auto-generated method stub
 			switch (v.getId()) {
 			case R.id.bOk:
-				savePhoto();
+				// savePhoto();
+				sendInfo();
 				CameraActivity.this.finish();
 				break;
 			case R.id.bCancel:
@@ -59,16 +60,7 @@ public class CameraActivity extends Activity {
 	 * @return the full path to current directory
 	 */
 	private String getCurrentDir() {
-		return mPrefs.getString(Record.CurrentDir, "");
-	}
-
-	/**
-	 * user defined quality in next version
-	 * 
-	 * @return the request quality of the photo
-	 */
-	private int getQuality() {
-		return 100;
+		return mPrefs.getString(Utility.CurrentDir, "");
 	}
 
 	/*
@@ -77,9 +69,7 @@ public class CameraActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
-		if (requestCode == CameraTag && resultCode == RESULT_OK
-				&& data.getExtras().get("data") != null) {
-			bitmap = (Bitmap) data.getExtras().get("data");
+		if (requestCode == CameraTag && resultCode == RESULT_OK) {
 		} else {
 			CameraActivity.this.finish();
 		}
@@ -102,65 +92,42 @@ public class CameraActivity extends Activity {
 		mPrefs = getSharedPreferences(Utility.SHARED_PREFERENCES,
 				Context.MODE_PRIVATE);
 		// start the system camera for a photo
-		Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		startActivityForResult(i, CameraTag);
+		startCamera();
 	}
 
 	@Override
 	protected void onResume() {
-		getParent().getActionBar().setTitle(R.string.camera_title);
+		setTitle(R.string.camera_title);
 		super.onResume();
 	}
 
 	/**
-	 * write the bitmap got from system camera to file file is in the dirName
-	 * directory and names after its save time
+	 * start system camera for a image and store it
 	 */
-	private void savePhoto() {
-		if (bitmap == null) {// no photo returned from camera
-			return;
-		}
-		// parent directory
-		File dir = new File(getCurrentDir());
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		// photo file name
-		final String now = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss",
-				Locale.CHINESE).format(Calendar.getInstance().getTime());
-		final String fileName = now + ".jpg";
-		File file = new File(dir, fileName);
-		// write
-		FileOutputStream out = null;
-		try {
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-			out = new FileOutputStream(file);
-			bitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), out);
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-			e.printStackTrace();
-		}
+	private void startCamera() {
+		Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		now = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.CHINESE)
+				.format(Calendar.getInstance().getTime());
+		fileName = now + ".jpg";
+		File file = new File(getCurrentDir(), fileName);
+		Uri imageUri = Uri.fromFile(file);
+		i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageUri);
+		startActivityForResult(i, CameraTag);
+	}
 
+	/**
+	 * sends information about the photo to service
+	 */
+	private void sendInfo() {
 		// send message to service to store info in record
-		String desc = etDesc.getText().toString();
+		desc = etDesc.getText().toString();
 		Intent i = new Intent();
 		i.setAction(Utility.CommandAction);
-		i.putExtra("command", Utility.AddPhoto);
-		i.putExtra("fileName", fileName);
-		i.putExtra("desc", desc);
-		i.putExtra("now", now);
+		i.putExtra(Utility.CommandTag, Utility.AddPhoto);
+		i.putExtra(Utility.FileNameExtra, fileName);
+		i.putExtra(Utility.DescExtra, desc);
+		i.putExtra(Utility.TimeExtra, now);
 		CameraActivity.this.sendBroadcast(i);
 	}
+
 }

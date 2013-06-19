@@ -1,9 +1,14 @@
 package com.aluen.tracerecorder.util;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import com.aluen.tracerecoder.R;
+
+import android.content.Context;
 
 /**
  * represents a line in kml
@@ -12,16 +17,13 @@ import org.w3c.dom.Node;
  * 
  */
 public class LinePath extends AbsPlacemark {
-
-	// template code in kml
-	private static String xmlStr = "<Placemark>\n"
-			+ "<visibility>1</visibility>\n" + "<LineString>\n"
-			+ "<coordinates>\n$coords</coordinates>\n" + "</LineString>\n"
-			+ "</Placemark>\n";
 	// points in this path
 	private ArrayList<GeoPoint> points = new ArrayList<GeoPoint>();
 
-	public LinePath() {
+	private WeakReference<Context> context;
+
+	public LinePath(Context context) {
+		this.context = new WeakReference<Context>(context);
 	}
 
 	/**
@@ -30,7 +32,9 @@ public class LinePath extends AbsPlacemark {
 	 * @param xml
 	 *            kml code
 	 */
-	public LinePath(Node xml) {
+	public LinePath(Node xml, Context context) {
+		this.context = new WeakReference<Context>(context);
+
 		parse(xml);
 	}
 
@@ -77,11 +81,13 @@ public class LinePath extends AbsPlacemark {
 		for (int i = 0; i < rawPoint.length; i++) {
 			if (!rawPoint.equals("")) {
 				point = rawPoint[i].trim().split(",");
-				// index 1 is latitude,index 2 is altitude,index 0 is longitude.
-				// that is defined in the kml.
-				this.addPoint(Double.parseDouble(point[2]),
-						Double.parseDouble(point[1]),
-						Double.parseDouble(point[0]));
+				if (3 == point.length)
+					// index 1 is latitude,index 2 is altitude,index 0 is
+					// longitude.
+					// that is defined in the kml.
+					this.addPoint(Double.parseDouble(point[2]),
+							Double.parseDouble(point[1]),
+							Double.parseDouble(point[0]));
 			}
 		}
 
@@ -90,7 +96,6 @@ public class LinePath extends AbsPlacemark {
 	public void setPoints(ArrayList<GeoPoint> points) {
 		this.points = points;
 	}
-
 
 	/**
 	 * 
@@ -104,8 +109,8 @@ public class LinePath extends AbsPlacemark {
 		for (int i = 0; i < points.size(); ++i) {
 			coords += points.get(i).toString();
 		}
-		String result = xmlStr.replace("$coords", coords);
-		return result;
+		return Utility.getFormatedString(this.context.get(),
+				R.string.linePathXML, coords);
 	}
 
 }

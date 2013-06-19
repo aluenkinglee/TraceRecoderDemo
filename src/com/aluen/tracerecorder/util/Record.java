@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,6 +20,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
@@ -29,14 +31,14 @@ import android.util.Log;
  * fills up a dir in sdcard
  * */
 public class Record {
-	private static boolean debug = false;
-	public static final String CurrentDir = "currentDir";
+
 	private static final String xmlStart = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			+ "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"
 			+ "<Document>\n";
 	private static final String xmlEnd = "</Document>\n" + "</kml>\n";
 
 	private String dirName;// dir name
+	private WeakReference<Context> context;
 
 	public String getDirName() {
 		return dirName;
@@ -47,7 +49,7 @@ public class Record {
 	}
 
 	private ArrayList<SinglePoint> list = new ArrayList<SinglePoint>();
-	private LinePath path = new LinePath();
+	private LinePath path;
 
 	public LinePath getPath() {
 		return path;
@@ -59,16 +61,22 @@ public class Record {
 
 	private AssetManager assetManager;
 
-	public Record(AssetManager asset) {
+	public Record(Context context, AssetManager asset) {
 		dirName = Environment.getExternalStorageDirectory().getPath()
 				+ "/trace/kml/"
 				+ new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.CHINESE)
 						.format(Calendar.getInstance().getTime()) + "/";
 		this.assetManager = asset;
+
+		this.context = new WeakReference<Context>(context);
+
+		this.path = new LinePath(this.context.get());
 	}
 
-	public Record(String file, AssetManager asset) {
+	public Record(String file, Context context, AssetManager asset) {
 		dirName = file + "/";
+
+		this.context = new WeakReference<Context>(context);
 
 		try {
 			read();
@@ -86,14 +94,14 @@ public class Record {
 			String time) {
 		SinglePoint point;
 		if (list.isEmpty()) {
-			point = new SinglePoint();
+			point = new SinglePoint(this.context.get());
 			point.setPoint(p);
 			list.add(point);
 		} else {
 			point = (SinglePoint) list.get(list.size() - 1);
 			if (point.getLocation().distanceTo(p) > 10) {// a circle around the
 															// spot
-				point = new SinglePoint();// another gallery
+				point = new SinglePoint(this.context.get());// another gallery
 				point.setPoint(p);
 				list.add(point);
 			}
@@ -144,16 +152,13 @@ public class Record {
 
 	private ArrayList<SinglePoint> read() throws Exception {
 		list.clear();
-		System.out.println("in record read dirname" + dirName);
 		File dir = new File(dirName);
 		if (!dir.exists()) {
-			System.out.println("dir not exists");
 			return null;
 		}
 		String fileName = "doc.kml";
 		File file = new File(dir, fileName);
 		if (!file.exists()) {
-			System.out.println("file not exists");
 			return null;
 		}
 		FileInputStream is = new FileInputStream(file);
@@ -163,17 +168,14 @@ public class Record {
 		Element rootElement = doc.getDocumentElement();
 		NodeList items = rootElement.getElementsByTagName("Placemark");
 		for (int i = 0; i < items.getLength(); ++i) {
-			AbsPlacemark placemark = AbsPlacemark.getInstance(items.item(i));
+			AbsPlacemark placemark = AbsPlacemark.getInstance(
+					this.context.get(), items.item(i));
 			if (placemark.getLocation() != null) {
 				list.add((SinglePoint) placemark);
 			} else {
 				path = (LinePath) placemark;
-				if (debug)
-					System.out.println(((LinePath) placemark).getPoints()
-							.size());
 			}
 		}
-		System.out.println("before return");
 		return list;
 	}
 

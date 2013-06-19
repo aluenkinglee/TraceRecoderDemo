@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -22,6 +23,31 @@ import com.aluen.tracerecoder.R;
 import com.aluen.tracerecorder.util.Utility;
 
 public class ListFileActivity extends Activity {
+	private class StableArrayAdapter extends ArrayAdapter<String> {
+
+		HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
+
+		public StableArrayAdapter(Context context, int textViewResourceId,
+				List<String> objects) {
+			super(context, textViewResourceId, objects);
+			for (int i = 0; i < objects.size(); ++i) {
+				mIdMap.put(objects.get(i), i);
+			}
+		}
+
+		@Override
+		public long getItemId(int position) {
+			String item = getItem(position);
+			return mIdMap.get(item);
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			return true;
+		}
+
+	}
+
 	// Handle the file list in such way <filename,directory path>.
 	private HashMap<String, String> fileList = null;
 	// This app's storage path
@@ -31,8 +57,35 @@ public class ListFileActivity extends Activity {
 	private StableArrayAdapter adapter = null;
 	// Handle to SharedPreferences for this app
 	SharedPreferences mPrefs;
+
 	// Handle to a SharedPreferences editor
 	SharedPreferences.Editor mEditor;
+
+	/**
+	 * @param path
+	 * @param fileList
+	 * 
+	 */
+
+	private void _getFileList(File path, HashMap<String, String> fileList) {
+		if (path.isDirectory()) {
+			File[] files = path.listFiles();
+			if (null == files)
+				return;
+			for (int i = 0; i < files.length; i++) {
+				String filePath = files[i].getAbsolutePath();
+				String fileName = files[i].getName();
+				fileList.put(fileName, filePath);
+			}
+		}
+	}
+
+	public HashMap<String, String> getFileList(File path) {
+		HashMap<String, String> fileList = new HashMap<String, String>();
+		_getFileList(path, fileList);
+		return fileList;
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +102,7 @@ public class ListFileActivity extends Activity {
 
 		final ArrayList<String> list = new ArrayList<String>();
 		// get the all the filename in current file list
-		Set<String> set = fileList.keySet();
+		Set<String> set = new TreeSet<String>(fileList.keySet());
 		for (String file : set) {
 			list.add(file);
 		}
@@ -79,56 +132,5 @@ public class ListFileActivity extends Activity {
 	protected void onResume() {
 		getParent().getActionBar().setTitle(R.string.list_file_title);
 		super.onResume();
-	}
-
-	public HashMap<String, String> getFileList(File path) {
-		HashMap<String, String> fileList = new HashMap<String, String>();
-		_getFileList(path, fileList);
-		return fileList;
-
-	}
-
-	/**
-	 * @param path
-	 * @param fileList
-	 * 
-	 */
-
-	private void _getFileList(File path, HashMap<String, String> fileList) {
-		if (path.isDirectory()) {
-			File[] files = path.listFiles();
-			if (null == files)
-				return;
-			for (int i = 0; i < files.length; i++) {
-				String filePath = files[i].getAbsolutePath();
-				String fileName = files[i].getName();
-				fileList.put(fileName, filePath);
-			}
-		}
-	}
-
-	private class StableArrayAdapter extends ArrayAdapter<String> {
-
-		HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
-
-		public StableArrayAdapter(Context context, int textViewResourceId,
-				List<String> objects) {
-			super(context, textViewResourceId, objects);
-			for (int i = 0; i < objects.size(); ++i) {
-				mIdMap.put(objects.get(i), i);
-			}
-		}
-
-		@Override
-		public long getItemId(int position) {
-			String item = getItem(position);
-			return mIdMap.get(item);
-		}
-
-		@Override
-		public boolean hasStableIds() {
-			return true;
-		}
-
 	}
 }
