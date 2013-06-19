@@ -167,10 +167,6 @@ public class MapActivity extends FragmentActivity implements
 
 		LinePath lp = record.getPath();
 		ArrayList<GeoPoint> points = lp.getPoints();
-//		ArrayList<GeoPoint> points = new ArrayList<GeoPoint>();
-//		if (lp!=null){
-//			points = lp.getPoints();
-//		}
 		if (0 != points.size()) {
 			for (int j = 0; j < points.size(); ++j) {
 				poLinePath.add(points.get(j).getTransformedLatLng());
