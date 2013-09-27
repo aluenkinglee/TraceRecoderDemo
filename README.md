@@ -6,3 +6,4 @@ TraceRecoderDemo
  
 <img  src="https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg"/> 
 ![alt text](https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg "图片")
+![tortoisegit-puttygen-save](.pics/S30927-164559.jpg)
