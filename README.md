@@ -4,3 +4,5 @@ TraceRecoderDemo
 效果图
 ![image](https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg)
  
+<img  width="451" height="274" src="https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg
+"/> 
