@@ -5,3 +5,4 @@ TraceRecoderDemo
 ![image](https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg)
  
 <img  src="https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg"/> 
+![alt text](https://github.com/aluenkinglee/TraceRecoderDemo/blob/master/pics/S30927-164559.jpg "图片")
